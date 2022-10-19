@@ -6,6 +6,7 @@ import br.com.alura.forum.dto.TopicoView
 import br.com.alura.forum.mapper.TopicoFormMapper
 import br.com.alura.forum.mapper.TopicoViewMapper
 import br.com.alura.forum.model.Topico
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Retry.Topic
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
@@ -30,25 +31,28 @@ class TopicoService(
         return topicoViewMapper.map(topico)
     }
 
-    fun cadastrar(form: NovoTopicoForm) {
+    fun cadastrar(form: NovoTopicoForm): TopicoView {
         val topico = topicoFormMapper.map(form)
         topico.id = topicos.size.toLong() + 1
         topicos = topicos.plus(topico)
+        return topicoViewMapper.map(topico)
     }
 
-    fun atualizar(form: AtualizacaoTopicoForm) {
+    fun atualizar(form: AtualizacaoTopicoForm): TopicoView {
         val topico = topicos.stream().filter { t ->
             t.id == form.id
         }.findFirst().get()
-        topicos = topicos.minus(topico).plus(Topico(
-                id = form.id,
-                titulo = form.titulo,
-                mensagem = form.mensagem,
-                autor = topico.autor,
-                curso = topico.curso,
-                status = topico.status,
-                dataCriacao = topico.dataCriacao
-        ))
+        val topicoAtualizado = Topico(
+            id = form.id,
+            titulo = form.titulo,
+            mensagem = form.mensagem,
+            autor = topico.autor,
+            curso = topico.curso,
+            status = topico.status,
+            dataCriacao = topico.dataCriacao
+        )
+        topicos = topicos.minus(topico).plus(topicoAtualizado)
+        return topicoViewMapper.map(topicoAtualizado)
     }
 
     fun deletar(id: Long) {
