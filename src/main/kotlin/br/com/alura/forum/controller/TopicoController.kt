@@ -5,6 +5,7 @@ import br.com.alura.forum.dto.TopicoView
 import br.com.alura.forum.service.TopicoService
 import org.springframework.web.bind.annotation.*
 import java.util.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/topicos")
@@ -22,7 +23,7 @@ class TopicoController(private val service: TopicoService) {
 
     }
     @PostMapping
-    fun cadastrar(@RequestBody dto: NovoTopicoForm) {
+    fun cadastrar(@RequestBody @Valid dto: NovoTopicoForm) {
         service.cadastrar(dto)
     }
 }
